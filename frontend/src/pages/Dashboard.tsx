@@ -112,7 +112,7 @@ startxref
     <div className="flex-1 overflow-y-auto p-6 space-y-6">
       
       {/* Top Welcome & Notification Banner */}
-      <div className="flex justify-between items-center bg-slate-900/40 border border-white/5 rounded-3xl p-6 relative overflow-hidden">
+      <div className="flex justify-between items-center bg-slate-900/40 border border-white/5 rounded-3xl p-6 relative">
         <div className="flex items-center gap-4">
           <div className="p-3.5 rounded-2xl bg-[#2563EB]/15 text-[#2563EB] border border-[#2563EB]/25">
             <Brain className="h-6 w-6 text-indigo-400" />
@@ -128,13 +128,33 @@ startxref
         </div>
 
         <div className="flex items-center gap-3.5 relative">
-          <button
-            onClick={() => setShowNotifications(!showNotifications)}
-            className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 text-slate-300 relative transition"
-          >
-            <Bell className="h-4.5 w-4.5" />
-            <span className="absolute top-1 right-1 h-2 w-2 bg-[#EF4444] rounded-full animate-pulse" />
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 text-slate-300 relative transition"
+            >
+              <Bell className="h-4.5 w-4.5" />
+              <span className="absolute top-1 right-1 h-2 w-2 bg-[#EF4444] rounded-full animate-pulse" />
+            </button>
+
+            {/* Notifications Dropdown tray (positioned relative to bell container) */}
+            {showNotifications && (
+              <div className="absolute right-0 top-12 w-80 bg-[#0f0f24] border border-white/10 rounded-2xl shadow-xl z-50 p-4 animate-fade-in">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Wellness Alerts</span>
+                  <button onClick={() => setShowNotifications(false)} className="text-[10px] text-indigo-400 font-bold hover:text-white">Close</button>
+                </div>
+                <div className="space-y-3">
+                  {notifications.map((n, idx) => (
+                    <div key={idx} className="p-2.5 bg-white/5 border border-white/5 rounded-xl text-left">
+                      <h5 className="text-xs font-bold text-white">{n.title}</h5>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{n.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           
           <button
             onClick={handleExport}
@@ -144,24 +164,6 @@ startxref
             <span>Export Report</span>
           </button>
         </div>
-
-        {/* Notifications Dropdown tray */}
-        {showNotifications && (
-          <div className="absolute right-6 top-20 w-80 bg-[#0f0f24] border border-white/10 rounded-2xl shadow-xl z-50 p-4 animate-fade-in">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase">Wellness Alerts</span>
-              <button onClick={() => setShowNotifications(false)} className="text-[10px] text-indigo-400">Close</button>
-            </div>
-            <div className="space-y-3">
-              {notifications.map((n, idx) => (
-                <div key={idx} className="p-2.5 bg-white/5 border border-white/5 rounded-xl text-left">
-                  <h5 className="text-xs font-bold text-white">{n.title}</h5>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{n.text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Wellness score & Gauge layout row */}
