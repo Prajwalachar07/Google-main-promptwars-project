@@ -119,20 +119,14 @@ const initialMockEntries: JournalEntry[] = [
           confidence: 90,
           triggers: ['Physics study sessions', 'Mock tests'],
         },
-        {
-          pattern: 'Late-night study causes fatigue',
-          type: 'Biological Loop',
-          confidence: 85,
-          triggers: ['Sleep scheduling'],
-        },
       ],
       recommendations: {
         studyAdvice: 'Split thermodynamics into 3 small sub-topics. Study only 1 sub-topic per day with simple revision notes.',
-        mindfulnessExercise: 'Try a 5-minute box breathing routine (inhale 4s, hold 4s, exhale 4s, hold 4s) before starting physics.',
-        breakStrategy: 'Use the 50-10 study ratio: after 50 minutes of studying, get up and completely disconnect for 10 minutes.',
-        motivationalMessage: 'A single mock test score does not measure your final exam potential. Every mistake is a diagnostic tool, not a verdict.',
-        timeManagementTip: 'Study physics during your highest alertness window (usually morning), not late at night when fatigue is high.',
-        recoveryAdvice: 'Keep hydration levels high today and listen to ambient instrumental music while doing low-stress revision.',
+        mindfulnessExercise: 'Try a 5-minute box breathing routine.',
+        breakStrategy: 'Use the 50-10 study ratio: after 50 minutes of studying, get up and completely disconnect.',
+        motivationalMessage: 'A single mock test score does not measure your final exam potential.',
+        timeManagementTip: 'Study physics during your highest alertness window (usually morning).',
+        recoveryAdvice: 'Keep hydration levels high today and listen to ambient instrumental music.',
       },
       safetyCheck: {
         severeDistressDetected: false,
@@ -164,12 +158,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     localStorage.setItem('mindmitra_journals', JSON.stringify(entries));
-    // Dynamically calculate wellness score & trends based on entries
     if (entries.length > 0) {
       const analyzedEntries = entries.filter((e) => e.analysis);
       if (analyzedEntries.length > 0) {
         const latest = analyzedEntries[0].analysis!;
-        const avgWellness = Math.round(
+        
+        // Map from the expanded backend keys if they exist
+        const rawAnalysis: any = latest;
+        const wellnessScore = rawAnalysis.wellness_score || Math.round(
           (latest.emotions.metrics.confidence +
             latest.emotions.metrics.motivation +
             latest.emotions.metrics.productivity +
@@ -179,14 +175,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             6
         );
 
-        const currentRisk = latest.burnoutAssessment.level;
+        const currentRisk = rawAnalysis.burnout?.level || latest.burnoutAssessment?.level || 'Moderate';
         const currentFocus = latest.emotions.metrics.productivity;
         const currentSleep = latest.emotions.metrics.sleepQuality;
         const currentConsistency = latest.studyMetrics.studyConsistencyScore;
 
         setDashboardData((prev) => ({
           ...prev,
-          dailyWellnessScore: avgWellness,
+          dailyWellnessScore: wellnessScore,
           burnoutRisk: currentRisk,
           focusScore: currentFocus,
           sleepImpact: currentSleep,
@@ -198,14 +194,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addEntry = async (content: string, entryDate: string, moodEmoji: string, title: string): Promise<JournalEntry> => {
     setIsAnalyzing(true);
-    // Mimic API request delay or call backend if connected
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Generate AI analysis on the client side if backend is not responding
-        const primaryEmotions = ['Overwhelmed', 'Determined', 'Anxious', 'Calm', 'Hopeful'];
-        const randomPrimary = primaryEmotions[Math.floor(Math.random() * primaryEmotions.length)];
-
-        // Dynamic metrics based on text clues
+        // Dynamic client-side calculation
         let anxiety = 50;
         let stress = 60;
         let confidence = 55;
@@ -214,19 +205,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         let severeDistress = false;
 
         const lowerContent = content.toLowerCase();
-        if (lowerContent.includes('anxious') || lowerContent.includes('anxiety') || lowerContent.includes('physics')) {
+        if (lowerContent.includes('anxious') || lowerContent.includes('physics')) {
           anxiety += 25;
           stress += 15;
         }
-        if (lowerContent.includes('mock') || lowerContent.includes('test') || lowerContent.includes('fail')) {
+        if (lowerContent.includes('mock') || lowerContent.includes('fail')) {
           confidence -= 20;
           stress += 10;
         }
-        if (lowerContent.includes('tired') || lowerContent.includes('sleep') || lowerContent.includes('exhausted')) {
+        if (lowerContent.includes('tired') || lowerContent.includes('sleep')) {
           sleep -= 25;
           stress += 10;
         }
-        if (lowerContent.includes('die') || lowerContent.includes('suicide') || lowerContent.includes('hopeless') || lowerContent.includes('give up')) {
+        if (lowerContent.includes('die') || lowerContent.includes('suicide') || lowerContent.includes('give up')) {
           severeDistress = true;
         }
 
@@ -239,8 +230,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           moodEmoji,
           analysis: {
             emotions: {
-              primary: randomPrimary,
-              secondary: ['Focused', 'Reflective'],
+              primary: anxiety > 60 ? 'Anxious' : 'Focused',
+              secondary: ['Reflective'],
               metrics: {
                 anxiety: Math.min(100, Math.max(0, anxiety)),
                 stress: Math.min(100, Math.max(0, stress)),
@@ -253,7 +244,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             },
             studyMetrics: {
               subjectFocus: [examMode === 'JEE' || examMode === 'NEET' ? 'Physics' : 'General Aptitude'],
-              challengesFaced: ['Conceptual understanding', 'Mental fatigue'],
+              challengesFaced: ['Conceptual understanding'],
               studyConsistencyScore: 80,
             },
             stressTriggers: [
@@ -263,20 +254,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 influenceLevel: stress,
                 description: 'Managing general subject revision load.',
               },
-              {
-                trigger: 'Exam timeline',
-                category: 'time-management',
-                influenceLevel: 65,
-                description: 'Coping with weekly preparation milestones.',
-              },
             ],
             burnoutAssessment: {
               level: stress > 75 ? 'High' : stress > 50 ? 'Moderate' : 'Low',
               score: stress,
-              indicators: ['Consistent academic tracking', 'Emotional strain fluctuations'],
+              indicators: ['Consistent academic tracking'],
               preventiveSuggestions: [
-                'Take structured 15-minute breaks after 90 minutes of studying.',
-                'Prioritize regular light physical movement like outdoor walking.',
+                'Take structured 15-minute breaks after 90 minutes.',
+                'Prioritize outdoor walking.',
               ],
             },
             cognitivePatterns: [
@@ -288,16 +273,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               },
             ],
             recommendations: {
-              studyAdvice: `Break your ${examMode} study plan into manageable sessions with pomodoro breaks.`,
-              mindfulnessExercise: 'Spend 5 minutes doing deep diaphragmatic breathing prior to starting practice questions.',
-              breakStrategy: 'Engage in a sensory break — listen to music or look away from screens.',
-              motivationalMessage: 'Progression is built step-by-step. Dedication in the face of struggle is where true strength lies.',
-              timeManagementTip: 'Use block blocking: reserve mornings for deep focus tasks, afternoons for practice mock sections.',
-              recoveryAdvice: 'Shut off all active study screens at least 45 minutes before sleep to stabilize melatonin levels.',
+              studyAdvice: `Break your ${examMode} study plan into manageable sessions.`,
+              mindfulnessExercise: 'Spend 5 minutes doing deep diaphragmatic breathing.',
+              breakStrategy: 'Engage in a sensory break — listen to music.',
+              motivationalMessage: 'Progression is built step-by-step.',
+              timeManagementTip: 'Use time blocking for revision.',
+              recoveryAdvice: 'Shut off study screens before sleeping.',
             },
             safetyCheck: {
               severeDistressDetected: severeDistress,
-              riskKeywordsIdentified: severeDistress ? ['hopeless', 'give up'] : [],
+              riskKeywordsIdentified: severeDistress ? ['give up'] : [],
               message: severeDistress
                 ? 'We notice you might be experiencing significant distress. Please consider reaching out to trusted family members, a counselor, or calling a support hotline like Vandrevala Foundation (9999 666 555) or AASRA (91-9820466726).'
                 : undefined,

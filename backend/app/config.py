@@ -1,5 +1,8 @@
 import os
-from pydantic_settings import BaseSettings if False else object # Allow simple configuration mock fallback
+from dotenv import load_dotenv
+
+# Explicitly load .env file from the backend folder or project root
+load_dotenv()
 
 class Settings:
     PROJECT_NAME: str = "MindMitra AI"
