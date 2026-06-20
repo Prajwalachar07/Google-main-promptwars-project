@@ -45,7 +45,67 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab }) => {
   ];
 
   const handleExport = () => {
-    alert("Exporting Weekly Analytics Report (PDF) - Document compiled successfully.");
+    // Generate valid raw PDF document data layout containing active student stats
+    const reportContent = `%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 200 >>
+stream
+BT
+/F1 18 Tf
+50 780 Td
+(MindMitra AI - Weekly Wellness Report) Tj
+/F1 12 Tf
+0 -40 Td
+(Exam Mode: ${examMode}) Tj
+0 -20 Td
+(Daily Wellness Score: ${dashboardData.dailyWellnessScore}%) Tj
+0 -20 Td
+(Focus Score: ${dashboardData.focusScore}%) Tj
+0 -20 Td
+(Sleep Impact: ${dashboardData.sleepImpact}%) Tj
+0 -20 Td
+(Study Consistency: ${dashboardData.studyConsistency}%) Tj
+0 -20 Td
+(Burnout Risk Assessment: ${dashboardData.burnoutRisk}) Tj
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000242 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+500
+%%EOF`;
+
+    // Create Blob and trigger direct browser anchor file download
+    const blob = new Blob([reportContent], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `mindmitra_${examMode}_wellness_report.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
