@@ -10,14 +10,9 @@ import {
   Activity, 
   Sparkles,
   BookOpen,
-  Plus,
   Trophy,
   Bell,
   Download,
-  Calendar,
-  Smile,
-  Compass,
-  ArrowUpRight,
   TrendingUp,
   Brain
 } from 'lucide-react';
