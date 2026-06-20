@@ -5,10 +5,15 @@ from .routes import journals
 
 app = FastAPI(title="MindMitra AI API", version="1.0.0")
 
-# Setup CORS to allow cross-origin calls from React frontend
+# Setup CORS to allow cross-origin calls from React frontend Vercel URL & localhost
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allow local development cross-origin requests
+    allow_origins=[
+        "https://google-main-promptwars-project.vercel.app",
+        "https://google-main-promptwars-project.vercel.app/",
+        "http://localhost:5173",
+        "http://localhost:5174",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
